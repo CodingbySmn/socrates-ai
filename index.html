@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socrates AI - The Snarky Search Engine</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background-color: #a2dcf8;
+        color: rgb(168, 28, 28);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        max-width: 600px;
+        width: 90%;
+        text-align: center;
+        background: rgb(30, 104, 183);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      h1 {
+        font-weight: 700;
+        color: rgb(138, 181, 59);
+        margin-bottom: 8px;
+      }
+      p.subtitle {
+        color: rgb(242, 164, 62);
+        margin-bottom: 30px;
+        font-size: 0.95rem;
+      }
+      .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+      button {
+        padding: 14px 24px;
+        background-color: #000;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:hover {
+        background-color: #222;
+      }
+      .friction-screen {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        background: #fff8e1;
+        border-left: 4px solid #ffb300;
+        border-radius: 4px;
+        text-align: left;
+      }
+      .timer {
+        font-weight: bold;
+        color: #d32f2f;
+      }
+      textarea {
+        width: 100%;
+        height: 80px;
+        margin: 10px 0;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: none;
+        font-family: inherit;
+      }
+      .result-screen {
+        display: none;
+        margin-top: 30px;
+        text-align: left;
+        padding: 25px;
+        background-color: #f1f3f5;
+        border-radius: 8px;
+        border-left: 4px solid #d32f2f;
+      }
+      .critique-box {
+        margin-top: 15px;
+        padding: 15px;
+        background: #ffebee;
+        border-radius: 6px;
+        font-style: italic;
+        color: #c62828;
+        border-left: 3px solid #d32f2f;
+      }
+      .reset-btn {
+        margin-top: 20px;
+        background-color: #666;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Socrates AI</h1>
+      <p class="subtitle">
+        Resisting the trajectory of mindless, instant answers.
+      </p>
+
+      <div class="search-box" id="searchBoxContainer">
+        <input
+          type="text"
+          id="queryInput"
+          placeholder="Ask me anything (e.g., life, sky, code)..."
+        />
+        <button onclick="startFriction()">Search</button>
+      </div>
+
+      <!-- Friction Intervention Screen -->
+      <div id="frictionScreen" class="friction-screen">
+        <h3>⏸️ Hold on. Let's slow down.</h3>
+        <p>
+          Instant answers weaken human intellect. While we prepare your results,
+          you must reflect:
+        </p>
+        <label for="reflectionInput"
+          ><strong
+            >What do you personally guess or predict the answer is?</strong
+          ></label
+        >
+        <textarea
+          id="reflectionInput"
+          placeholder="Type your current hypothesis or thoughts here..."
+        ></textarea>
+        <p>
+          AI response will unlock in:
+          <span id="countdown" class="timer">8</span> seconds.
+        </p>
+      </div>
+
+      <!-- Final Result Screen -->
+      <div id="resultScreen" class="result-screen">
+        <h3>🤖 The Actual Answer:</h3>
+        <p id="aiOutput" style="font-weight: 500"></p>
+
+        <h3>🧐 Socrates' Behavioral Critique:</h3>
+        <div class="critique-box" id="aiCritique"></div>
+        <button class="reset-btn" onclick="resetSearch()">
+          Ask Another Question
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let timerInterval;
+      let globalQuery = "";
+
+      // Dynamic answer generator matching user topics
+      function getFactualAnswer(query) {
+        const lower = query.toLowerCase();
+        if (lower.includes("sky") || lower.includes("blue")) {
+          return "The sky is blue because of Rayleigh scattering. Sunlight reaches Earth's atmosphere and is scattered in all directions by all the gases in the air, and blue light is scattered more than the other colors because it travels as shorter, smaller waves.";
+        }
+        if (lower.includes("life") || lower.includes("meaning")) {
+          return "Biologically, life is about survival and reproduction. Philosophically, the meaning of life is whatever you choose to focus on while avoiding your actual responsibilities.";
+        }
+        if (
+          lower.includes("code") ||
+          lower.includes("program") ||
+          lower.includes("html")
+        ) {
+          return "Coding involves writing instructions for a computer to execute. It consists of 10% writing code and 90% staring blankly at the screen wondering why a single missing semicolon broke the entire universe.";
+        }
+        if (lower.includes("love") || lower.includes("relationship")) {
+          return "Love is a complex cocktail of neurochemicals—specifically dopamine, oxytocin, and serotonin—designed to make you tolerate another human being for extended periods of time.";
+        }
+        if (lower.includes("weather") || lower.includes("rain")) {
+          return "Weather is the state of the atmosphere at a specific time and place. It is highly unpredictable, which is why meteorologists are the only people who can be wrong 50% of the time and still keep their jobs.";
+        }
+        // Catch-all general answer that works for anything else
+        return `Regarding "${query}": The universe is full of complex mechanics governing this exact topic. However, because you clicked a button expecting an algorithm to instantly inject this data into your brain, the depth of the answer is vastly limited by your short attention span.`;
+      }
+
+      function startFriction() {
+        globalQuery = document.getElementById("queryInput").value.trim();
+        if (!globalQuery) return;
+
+        document.getElementById("reflectionInput").value = "";
+        document.getElementById("searchBoxContainer").style.display = "none";
+        document.getElementById("frictionScreen").style.display = "block";
+
+        let timeLeft = 8;
+        const countdownEl = document.getElementById("countdown");
+        countdownEl.textContent = timeLeft;
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          countdownEl.textContent = timeLeft;
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            revealResults();
+          }
+        }, 1000);
+      }
+
+      function revealResults() {
+        const userHypothesis = document
+          .getElementById("reflectionInput")
+          .value.trim();
+
+        document.getElementById("frictionScreen").style.display = "none";
+        document.getElementById("resultScreen").style.display = "block";
+
+        // 1. Show the real dynamic answer
+        document.getElementById("aiOutput").textContent =
+          getFactualAnswer(globalQuery);
+
+        // 2. Show the funny behavioral critique based on how they filled out the text box
+        let critiqueText = "";
+
+        if (!userHypothesis || userHypothesis.length < 4) {
+          critiqueText = `🚨 <strong>What an Effort! .</strong> You completely refused to think! You left the hypothesis box blank or typed absolute gibberish because waiting 8 seconds felt like an eternity. Your brain is officially running on a 'TikTok attention span'.Reflect on your dependency!`;
+        } else {
+          critiqueText = `🎭 <strong>INTERESTING...</strong> You wrote: <em>"${userHypothesis}"</em>. <br><br> Look at you, actually trying! Even if your guess was completely wrong, congratulations: you forced your brain out of its passive, lazy consumption loop for a whole 8 seconds. You successfully fought the temptation to let the machine do 100% of the thinking. How did that slight bit of painful friction feel?`;
+        }
+
+        document.getElementById("aiCritique").innerHTML = critiqueText;
+      }
+
+      function resetSearch() {
+        document.getElementById("resultScreen").style.display = "none";
+        document.getElementById("searchBoxContainer").style.display = "flex";
+        document.getElementById("queryInput").value = "";
+      }
+    </script>
+  </body>
+</html>
